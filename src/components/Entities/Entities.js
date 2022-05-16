@@ -12,7 +12,7 @@ import { Block, Elem } from "../../utils/bem";
 import { RadioGroup } from "../../common/RadioGroup/RadioGroup";
 import "./Entities.styl";
 import { Button } from "../../common/Button/Button";
-import { LsInvisible, LsTrash, LsVisible } from "../../assets/icons";
+import { IconViewAll, LsInvisible, LsTrash, LsVisible } from "../../assets/icons";
 import { confirm } from "../../common/Modal/Modal";
 import { Tooltip } from "../../common/Tooltip/Tooltip";
 
@@ -22,6 +22,7 @@ export default observer(({
 }) => {
   const { classifications, regions } = regionStore;
   const count = regions.length + (regionStore.view === "regions" ? classifications.length : 0);
+  const [collapseState, setCollapseState] = React.useState(true);
 
   const toggleVisibility = e => {
     e.preventDefault();
@@ -44,6 +45,22 @@ export default observer(({
             <RadioGroup.Button value="regions">Regions{count ? <Elem name="counter">&nbsp;{count}</Elem> : null}</RadioGroup.Button>
             <RadioGroup.Button value="labels">Labels</RadioGroup.Button>
           </RadioGroup>
+
+          <Tooltip title="Collapse All Regions">
+            <Button
+              type="text"
+              aria-label="Collapse All Regions"
+              icon={<IconViewAll/>}
+              style={{
+                height: 36,
+                width: 36,
+                padding: 0,
+              }}
+              onClick={() => {
+                setCollapseState(!collapseState);
+              }}
+            />
+          </Tooltip>
 
           <Tooltip title="Delete All Regions">
             <Button
@@ -99,14 +116,16 @@ export default observer(({
       )
         : null}
 
-      <Oneof value={regionStore.view}>
-        <Elem name="regions" case="regions">
-          {count ? <RegionTree regionStore={regionStore}/> : <Elem name="empty">No Regions created yet</Elem>}
-        </Elem>
-        <Elem name="labels" case="labels">
-          {count ? <LabelList regionStore={regionStore}/> : <Elem name="empty">No Labeled Regions created yet</Elem>}
-        </Elem>
-      </Oneof>
+      {collapseState ? (
+        <Oneof value={regionStore.view}>
+          <Elem name="regions" case="regions">
+            {count ? <RegionTree regionStore={regionStore}/> : <Elem name="empty">No Regions created yet</Elem>}
+          </Elem>
+          <Elem name="labels" case="labels">
+            {count ? <LabelList regionStore={regionStore}/> : <Elem name="empty">No Labeled Regions created yet</Elem>}
+          </Elem>
+        </Oneof>
+      ):null}
     </Block>
   );
 });
